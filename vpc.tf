@@ -21,3 +21,8 @@ resource "aws_subnet" "fusionsubnet4" {
   cidr_block = "10.10.4.0/24"
   
 }
+resource "aws_subnet" "fusionsubnet5" {
+  vpc_id     = aws_vpc.fusionvpc.id
+  cidr_block = "10.10.5.0/24"
+  
+}
