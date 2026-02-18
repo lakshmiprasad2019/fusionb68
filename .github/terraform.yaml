@@ -1,0 +1,35 @@
+name: Terraform Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Or whichever branch you want to trigger this
+  workflow_dispatch: # Allows you to run this manually
+
+jobs:
+  terraform:
+    name: 'Terraform Execution'
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Install Terraform on the runner
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "latest"
+
+      # 3. Initialize Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      # 4. Generate a Plan
+      - name: Terraform Plan
+        run: terraform plan
+
+      # 5. Apply the changes
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
