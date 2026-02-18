@@ -1,25 +1,56 @@
 pipeline {
     agent any
 
+    parameters {
+        choice(
+            name: 'ACTION', 
+            choices: ['apply', 'destroy'], 
+            description: 'Select whether to create or delete the infrastructure.'
+        )
+    }
+
     stages {
-        stage('git checkout stage') {
+        stage('Git Checkout') {
             steps {
                 git 'https://github.com/lakshmiprasad2019/fusionb68.git'
             }
         }
-        stage('terraform init') {
+
+        stage('Terraform Init') {
             steps {
                 sh 'terraform init'
             }
         }
-        stage('terraform plan') {
+
+        stage('Terraform Plan') {
             steps {
-                sh 'terraform plan'
+                // Generates a plan based on the chosen action
+                script {
+                    if (params.ACTION == 'apply') {
+                        sh 'terraform plan -out=tfplan'
+                    } else {
+                        sh 'terraform plan -destroy -out=tfplan'
+                    }
+                }
             }
         }
-        stage('terraform apply') {
+
+        stage('Terraform Apply') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
-                sh 'terraform apply -auto-approve'
+                sh 'terraform apply "tfplan"'
+            }
+        }
+
+        stage('Terraform Destroy') {
+            when {
+                expression { params.ACTION == 'destroy' }
+            }
+            steps {
+                // Using -auto-approve for the destroy action
+                sh 'terraform destroy -auto-approve'
             }
         }
     }
